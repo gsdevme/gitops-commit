@@ -12,7 +12,7 @@ import (
 func NewRootCommand() *cobra.Command {
 	c := cobra.Command{
 		Use: "gitops-commit",
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			key := cmd.Flag("key").Value.String()
 			email := cmd.Flag("email").Value.String()
 			newVersion := cmd.Flag("version").Value.String()
@@ -21,10 +21,13 @@ func NewRootCommand() *cobra.Command {
 			file := strings.TrimLeft(cmd.Flag("file").Value.String(), "/")
 
 			options, c, err := gitops.NewGitOptions(key)
-			options.Email = email
+
+			if len(email) > 0 {
+				options.Email = email
+			}
 
 			if err != nil {
-				panic(err.Error()) // todo
+				return err
 			}
 
 			defer c()
@@ -32,7 +35,7 @@ func NewRootCommand() *cobra.Command {
 			r, err := gitops.CloneRepository(options, repo)
 
 			if err != nil {
-				panic(err.Error()) // todo
+				return fmt.Errorf("failed to clone repo %s: %w", repo, err)
 			}
 
 			filename := fmt.Sprintf("%s/%s", options.WorkingDirectory, file)
@@ -40,20 +43,22 @@ func NewRootCommand() *cobra.Command {
 			f, err := ioutil.ReadFile(filename)
 
 			if err != nil {
-				panic(fmt.Errorf("cannot read file: %w", err))
+				return fmt.Errorf("cannot read file: %w", err)
 			}
 
 			version, err := gitops.ReadCurrentVersion(f, notation)
 			if err != nil {
-				panic(err) // todo
+				return fmt.Errorf("cannot read current version deployed: %w", err)
 			}
 
 			err = gitops.WriteVersion(f, version, newVersion, filename)
 			if err != nil {
-				panic(err) // todo
+				return fmt.Errorf("cannot write new version: %w", err)
 			}
 
 			gitops.PushVersion(r, options, file, fmt.Sprintf("ci: update tag to %s", newVersion))
+
+			return nil
 		},
 	}
 
@@ -65,7 +70,6 @@ func NewRootCommand() *cobra.Command {
 	c.Flags().String("file", "/deployments/values.yaml", "The relative path in the repository to the file")
 
 	_ = c.MarkFlagRequired("notation")
-	_ = c.MarkFlagRequired("email")
 	_ = c.MarkFlagRequired("tag")
 	_ = c.MarkFlagRequired("file")
 

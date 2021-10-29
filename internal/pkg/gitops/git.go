@@ -34,8 +34,8 @@ func NewGitOptions(key string) (*GitOptions, func(), error) {
 			WorkingDirectory: dir,
 			Keys:             *keys,
 			Branch:           "master",
-			Name:             "bot",
-			Email:            "nobody@example.com",
+			Name:             "gitops-commit-bot",
+			Email:            "gitops-commit@example.com",
 		}, func() {
 			err := os.RemoveAll(dir)
 			if err != nil {
