@@ -14,6 +14,8 @@ type GitOptions struct {
 	WorkingDirectory string
 	Keys             ssh.PublicKeys
 	Branch           string
+	Email            string
+	Name             string
 }
 
 func NewGitOptions(key string) (*GitOptions, func(), error) {
@@ -32,6 +34,8 @@ func NewGitOptions(key string) (*GitOptions, func(), error) {
 			WorkingDirectory: dir,
 			Keys:             *keys,
 			Branch:           "master",
+			Name:             "bot",
+			Email:            "nobody@example.com",
 		}, func() {
 			err := os.RemoveAll(dir)
 			if err != nil {
@@ -40,7 +44,7 @@ func NewGitOptions(key string) (*GitOptions, func(), error) {
 		}, nil
 }
 
-func PushVersion(r *git.Repository, options *GitOptions, file string) {
+func PushVersion(r *git.Repository, options *GitOptions, file string, message string) {
 	tree, err := r.Worktree()
 	if err != nil {
 		panic(err)
@@ -52,10 +56,10 @@ func PushVersion(r *git.Repository, options *GitOptions, file string) {
 		panic(err)
 	}
 
-	commit, err := tree.Commit("example go-git commit", &git.CommitOptions{
+	commit, err := tree.Commit(message, &git.CommitOptions{
 		Author: &object.Signature{
-			Name:  "Gavin",
-			Email: "github.efji3n6i@gsdev.me",
+			Name:  options.Name,
+			Email: options.Email,
 			When:  time.Now(),
 		},
 	})
