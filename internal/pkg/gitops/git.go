@@ -24,7 +24,7 @@ func NewGitOptions(key string) (*GitOptions, func(), error) {
 		return nil, nil, err
 	}
 
-	keys, err := GetPasswordlessKey(key)
+	keys, err := getPasswordlessKey(key)
 
 	if err != nil {
 		return nil, nil, err
@@ -83,7 +83,7 @@ func PushVersion(r *git.Repository, options *GitOptions, file string, message st
 	}
 }
 
-func GetPasswordlessKey(key string) (*ssh.PublicKeys, error) {
+func getPasswordlessKey(key string) (*ssh.PublicKeys, error) {
 	publicKeys, err := ssh.NewPublicKeysFromFile("git", key, "")
 	if err != nil {
 		return nil, fmt.Errorf("private/public key invalid: %w", err)
@@ -92,7 +92,7 @@ func GetPasswordlessKey(key string) (*ssh.PublicKeys, error) {
 	return publicKeys, nil
 }
 
-func CloneRepository(o *GitOptions, r string) (*git.Repository, error) {
+func cloneRepository(o *GitOptions, r string) (*git.Repository, error) {
 
 	return git.PlainClone(o.WorkingDirectory, false, &git.CloneOptions{
 		Auth:         &o.Keys,
