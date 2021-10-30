@@ -12,27 +12,21 @@ import (
 
 type GitOptions struct {
 	WorkingDirectory string
-	Keys             ssh.PublicKeys
+	Keys             *ssh.PublicKeys
 	Branch           string
 	Email            string
 	Name             string
 }
 
-func NewGitOptions(key string) (*GitOptions, func(), error) {
+func NewGitOptions(keys *ssh.PublicKeys) (*GitOptions, func(), error) {
 	dir, err := ioutil.TempDir("/tmp", "prefix")
-	if err != nil {
-		return nil, nil, err
-	}
-
-	keys, err := getPasswordlessKey(key)
-
 	if err != nil {
 		return nil, nil, err
 	}
 
 	return &GitOptions{
 			WorkingDirectory: dir,
-			Keys:             *keys,
+			Keys:             keys,
 			Branch:           "master",
 			Name:             "gitops-commit-bot",
 			Email:            "gitops-commit@example.com",
@@ -75,7 +69,7 @@ func PushVersion(r *git.Repository, options *GitOptions, file string, message st
 	}
 
 	err = r.Push(&git.PushOptions{
-		Auth: &options.Keys,
+		Auth: options.Keys,
 	})
 
 	if err != nil {
@@ -83,7 +77,7 @@ func PushVersion(r *git.Repository, options *GitOptions, file string, message st
 	}
 }
 
-func getPasswordlessKey(key string) (*ssh.PublicKeys, error) {
+func GetPasswordlessKey(key string) (*ssh.PublicKeys, error) {
 	publicKeys, err := ssh.NewPublicKeysFromFile("git", key, "")
 	if err != nil {
 		return nil, fmt.Errorf("private/public key invalid: %w", err)
@@ -93,9 +87,8 @@ func getPasswordlessKey(key string) (*ssh.PublicKeys, error) {
 }
 
 func cloneRepository(o *GitOptions, r string) (*git.Repository, error) {
-
 	return git.PlainClone(o.WorkingDirectory, false, &git.CloneOptions{
-		Auth:         &o.Keys,
+		Auth:         o.Keys,
 		URL:          fmt.Sprintf("git@github.com:%s.git", r),
 		SingleBranch: true,
 		Depth:        1,
