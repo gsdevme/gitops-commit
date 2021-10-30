@@ -19,7 +19,13 @@ func newRunCommand() *cobra.Command {
 			repo := strings.TrimRight(cmd.Flag("repo").Value.String(), "/")
 			file := strings.TrimLeft(cmd.Flag("file").Value.String(), "/")
 
-			options, c, err := gitops.NewGitOptions(key)
+			keys, err := gitops.GetPasswordlessKey(key)
+
+			if err != nil {
+				return err
+			}
+
+			options, c, err := gitops.NewGitOptions(keys)
 
 			if len(email) > 0 {
 				options.Email = email
