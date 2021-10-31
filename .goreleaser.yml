@@ -13,6 +13,11 @@ builds:
     goos:
       - linux
       - darwin
+dockers:
+  - image_templates:
+      - "gsdevme/gitops-commit:latest"
+      - "gsdevme/gitops-commit:{{ .Tag }}"
+      - "gsdevme/gitops-commit:v{{ .Major }}"
 archives:
   - replacements:
       darwin: Darwin

@@ -31,6 +31,10 @@ func (c *NamedRepositoryRegistry) Add(name string, r string, f string, n string,
 }
 
 func (c *NamedRepositoryRegistry) findNamedRepository(n string) (*NamedRepository, error) {
+	if c.r == nil {
+		return nil, fmt.Errorf("no named repository found for %s", n)
+	}
+
 	for _, r := range *c.r {
 		if r.Name == n {
 			return &r, nil
@@ -41,6 +45,10 @@ func (c *NamedRepositoryRegistry) findNamedRepository(n string) (*NamedRepositor
 }
 
 func (c *NamedRepositoryRegistry) getNamesFlattened() string {
+	if c.r == nil {
+		return ""
+	}
+
 	var names string
 
 	for _, r := range *c.r {
