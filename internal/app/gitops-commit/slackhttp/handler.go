@@ -14,32 +14,43 @@ func (s *server) handleSlackCommand(registry *NamedRepositoryRegistry) func(http
 		text := strings.Split(sl.Text, " ")
 
 		if len(text) < 3 || len(text) > 3 {
-			sendEphemeralMsg("Incorrect usage, expected /gitops-commit [command] [name] [tag]", w)
+			respondSlack("Incorrect usage, expected /gitops-commit [command] [name] [tag]", slack.ResponseTypeEphemeral, w)
 
 			return
 		}
 
-		switch text[0] {
+		command := text[0]
+
+		switch command {
 		case "deploy":
 			deploy(s, w, registry, text[1], text[2])
 
 			return
+		default:
+			respondSlack(
+				fmt.Sprintf("Unknown command %s, expected /gitops-commit [command] [name] [tag]", command),
+				slack.ResponseTypeEphemeral,
+				w,
+			)
 		}
 	}
 }
 
 func deploy(s *server, w http.ResponseWriter, registry *NamedRepositoryRegistry, name string, version string) {
-
 	r, err := registry.findNamedRepository(name)
 
 	if err != nil {
-		sendEphemeralMsg(fmt.Sprintf("Unknown named repository, cannot handle \"%s\", availabe options (%s)", name, registry.getNamesFlattened()), w)
+		respondSlack(
+			fmt.Sprintf("Unknown named repository, cannot handle \"%s\", availabe options (%s)", name, registry.getNamesFlattened()),
+			slack.ResponseTypeEphemeral,
+			w,
+		)
 
 		return
 	}
 
 	if len(version) != 7 {
-		sendEphemeralMsg(fmt.Sprintf("version does not look semver? %s", version), w)
+		respondSlack(fmt.Sprintf("version does not look semver? %s", version), slack.ResponseTypeEphemeral, w)
 
 		return
 	}
@@ -62,33 +73,23 @@ func deploy(s *server, w http.ResponseWriter, registry *NamedRepositoryRegistry,
 	go func() {
 		err = gitops.DeployVersionHandler(command)
 		if err != nil {
-			sendEphemeralMsg(fmt.Sprintf("failed to deploy: %s", err), w)
+			respondSlack(fmt.Sprintf("failed to deploy: %s", err), slack.ResponseTypeEphemeral, w)
 
 			return
 		}
 	}()
 
-	params := &slack.Msg{
-		Text:         fmt.Sprintf(":alert: Deploying tag `%s` to `%s`:`%s`", version, r.Repository, r.File),
-		ResponseType: slack.ResponseTypeInChannel,
-	}
-	b, err := json.Marshal(params)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(b)
-
-	if err != nil {
-		return
-	}
+	respondSlack(
+		fmt.Sprintf(":alert: Deploying tag `%s` to `%s`:`%s`", version, r.Repository, r.File),
+		slack.ResponseTypeInChannel,
+		w,
+	)
 }
 
-func sendEphemeralMsg(m string, w http.ResponseWriter) {
+func respondSlack(m string, t string, w http.ResponseWriter) {
 	b, err := json.Marshal(slack.Msg{
 		Text:         m,
-		ResponseType: slack.ResponseTypeEphemeral,
+		ResponseType: t,
 	})
 	if err != nil {
 		fmt.Println(err)
