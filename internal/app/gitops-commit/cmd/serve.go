@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/google/martian/log"
 	"github.com/gsdevme/gitops-commit/internal/app/gitops-commit/slackhttp"
 	"github.com/gsdevme/gitops-commit/internal/pkg/gitops"
 	"github.com/spf13/cobra"
@@ -40,7 +41,7 @@ func newServeCommand() *cobra.Command {
 				ReadTimeout:  3 * time.Second,
 				WriteTimeout: 5 * time.Second,
 				ConnState: func(conn net.Conn, state http.ConnState) {
-					//fmt.Fprintf(os.Stdout, "%s - %s\n", conn.RemoteAddr(), state.String())
+					log.Debugf("%s - %s\n", conn.RemoteAddr(), state.String())
 				},
 			}
 
