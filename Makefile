@@ -4,8 +4,14 @@ default: build;
 fmt:
 	go fmt ./...
 
+lint:
+	 golangci-lint run
+
 tests:
 	go test ./...
+
+coverage:
+	go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out
 
 run:
 	./dist/gitops-commit_darwin_amd64/gitops-commit

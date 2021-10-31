@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/go-git/go-git/v5 v5.4.2
+	github.com/google/martian v2.1.0+incompatible
 	github.com/gorilla/mux v1.8.0
 	github.com/slack-go/slack v0.9.5
 	github.com/spf13/cobra v1.2.1

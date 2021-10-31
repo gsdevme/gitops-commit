@@ -1,6 +1,7 @@
 package slackhttp
 
 import (
+	"github.com/google/martian/log"
 	"github.com/slack-go/slack"
 	"io"
 	"io/ioutil"
@@ -26,6 +27,8 @@ func (s *server) SlackCommandMiddleware(next func(w http.ResponseWriter, s slack
 
 		if err = verifier.Ensure(); err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
+
+			log.Debugf("unauthorized request")
 
 			return
 		}
