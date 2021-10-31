@@ -3,10 +3,16 @@ package slackhttp
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/google/martian/log"
 	"github.com/gsdevme/gitops-commit/internal/pkg/gitops"
 	"github.com/slack-go/slack"
 	"net/http"
 	"strings"
+)
+
+const (
+	SlackUnknownResponse        = "Incorrect usage, expected /gitops-commit [command] [name] [tag]"
+	SlackUnknownCommandResponse = "Unknown command '%s', expected /gitops-commit [command] [name] [tag]"
 )
 
 func (s *server) handleSlackCommand(registry *NamedRepositoryRegistry) func(http.ResponseWriter, slack.SlashCommand) {
@@ -14,7 +20,7 @@ func (s *server) handleSlackCommand(registry *NamedRepositoryRegistry) func(http
 		text := strings.Split(sl.Text, " ")
 
 		if len(text) < 3 || len(text) > 3 {
-			respondSlack("Incorrect usage, expected /gitops-commit [command] [name] [tag]", slack.ResponseTypeEphemeral, w)
+			respondSlack(SlackUnknownResponse, slack.ResponseTypeEphemeral, w)
 
 			return
 		}
@@ -28,7 +34,7 @@ func (s *server) handleSlackCommand(registry *NamedRepositoryRegistry) func(http
 			return
 		default:
 			respondSlack(
-				fmt.Sprintf("Unknown command %s, expected /gitops-commit [command] [name] [tag]", command),
+				fmt.Sprintf(SlackUnknownCommandResponse, command),
 				slack.ResponseTypeEphemeral,
 				w,
 			)
@@ -73,7 +79,7 @@ func deploy(s *server, w http.ResponseWriter, registry *NamedRepositoryRegistry,
 	go func() {
 		err = gitops.DeployVersionHandler(command)
 		if err != nil {
-			respondSlack(fmt.Sprintf("failed to deploy: %s", err), slack.ResponseTypeEphemeral, w)
+			log.Errorf("failed to deploy %w", err)
 
 			return
 		}
@@ -92,7 +98,6 @@ func respondSlack(m string, t string, w http.ResponseWriter) {
 		ResponseType: t,
 	})
 	if err != nil {
-		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
