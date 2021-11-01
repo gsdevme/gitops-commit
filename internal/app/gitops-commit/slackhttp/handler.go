@@ -55,12 +55,6 @@ func deploy(s *server, w http.ResponseWriter, registry *NamedRepositoryRegistry,
 		return
 	}
 
-	if len(version) != 7 {
-		respondSlack(fmt.Sprintf("version does not look semver? %s", version), slack.ResponseTypeEphemeral, w)
-
-		return
-	}
-
 	options, f, err := gitops.NewGitOptions(s.keys)
 	if err != nil {
 		log.Errorf("failed to setup environment: %w", err)
