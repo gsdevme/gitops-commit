@@ -63,6 +63,8 @@ func deploy(s *server, w http.ResponseWriter, registry *NamedRepositoryRegistry,
 
 	options, f, err := gitops.NewGitOptions(s.keys)
 	if err != nil {
+		log.Errorf("failed to setup environment: %w", err)
+
 		return
 	}
 
