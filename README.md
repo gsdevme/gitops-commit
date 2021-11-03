@@ -42,14 +42,8 @@ Flags:
 
 ```
 
-## TODO
-
-- [ ] Add web service
-- [ ] Add webhook to ingress from slack command
-
 ## Limitations
 
 - Github only
 - YAML only
-- Semver tag only
 - Passwordless keys only
