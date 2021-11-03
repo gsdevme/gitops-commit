@@ -11,16 +11,16 @@ import (
 )
 
 const (
-	SlackUnknownResponse        = "Incorrect usage, expected /gitops-commit [command] [name] [tag]"
-	SlackUnknownCommandResponse = "Unknown command '%s', expected /gitops-commit [command] [name] [tag]"
+	SlackUnknownResponse       = "Incorrect usage, unknown command"
+	SlackDeployUnknownResponse = "Incorrect usage, expected /gitops-commit [command] [name] [tag]"
 )
 
 func (s *server) handleSlackCommand(registry *NamedRepositoryRegistry) func(http.ResponseWriter, slack.SlashCommand) {
 	return func(w http.ResponseWriter, sl slack.SlashCommand) {
 		text := strings.Split(sl.Text, " ")
 
-		if len(text) < 3 || len(text) > 3 {
-			respondSlack(SlackUnknownResponse, slack.ResponseTypeEphemeral, w)
+		if len(text) < 1 {
+			respondSlack(SlackDeployUnknownResponse, slack.ResponseTypeEphemeral, w)
 
 			return
 		}
@@ -29,17 +29,31 @@ func (s *server) handleSlackCommand(registry *NamedRepositoryRegistry) func(http
 
 		switch command {
 		case "deploy":
+			if len(text) < 3 || len(text) > 3 {
+				respondSlack(SlackDeployUnknownResponse, slack.ResponseTypeEphemeral, w)
+
+				return
+			}
+
 			deploy(s, w, registry, text[1], text[2])
+
+			return
+		case "show":
+			show(w, registry)
 
 			return
 		default:
 			respondSlack(
-				fmt.Sprintf(SlackUnknownCommandResponse, command),
+				SlackUnknownResponse,
 				slack.ResponseTypeEphemeral,
 				w,
 			)
 		}
 	}
+}
+
+func show(w http.ResponseWriter, registry *NamedRepositoryRegistry) {
+	respondSlack(fmt.Sprintf("Manifest options: %s", registry.getNamesFlattened()), slack.ResponseTypeInChannel, w)
 }
 
 func deploy(s *server, w http.ResponseWriter, registry *NamedRepositoryRegistry, name string, version string) {
