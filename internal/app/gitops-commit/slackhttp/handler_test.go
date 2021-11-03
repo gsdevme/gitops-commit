@@ -21,12 +21,12 @@ func Test_handleSlackCommand(t *testing.T) {
 			{
 				name:    "when using missing bits",
 				command: "totally wrong",
-				expect:  "Incorrect usage, expected /gitops-commit [command] [name] [tag]",
+				expect:  "Incorrect usage, unknown command",
 			},
 			{
 				name:    "when using an invalid command",
 				command: "wrong thing v1.2.3",
-				expect:  "Unknown command 'wrong', expected /gitops-commit [command] [name] [tag]",
+				expect:  "Incorrect usage, unknown command",
 			},
 			{
 				name:    "when using a valid command ",
