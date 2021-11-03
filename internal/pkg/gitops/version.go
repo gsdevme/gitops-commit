@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -41,8 +43,31 @@ func WriteVersion(f []byte, version string, newVersion string, filename string) 
 
 func unwrapYaml(yaml map[string]interface{}, notion string) (string, error) {
 	d := yaml
+	r := regexp.MustCompile(`\d+]$`)
 
 	for _, k := range strings.Split(notion, ".") {
+		if r.MatchString(k) {
+			idx := r.FindString(k)[:1]
+
+			if len(idx) > 0 {
+				i, err := strconv.ParseInt(idx, 10, 8)
+
+				if err != nil {
+					return "", err
+				}
+
+				k = k[:len(k)-int(i)]
+
+				if a, ok := d[k].([]interface{}); ok {
+					if b, ok := a[i].(map[string]interface{}); ok {
+						d = b
+
+						continue
+					}
+				}
+			}
+		}
+
 		if _, ok := d[k]; !ok {
 			return "", fmt.Errorf("unable to find %s in yaml", notion)
 		}

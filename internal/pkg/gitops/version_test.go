@@ -30,7 +30,7 @@ func TestReadCurrentVersion(t *testing.T) {
 		{
 			name: "invalid yaml",
 			args: args{
-				f:        []byte("wibble&&3..\nfff"),
+				f:  []byte("wibble&&3..\nfff"),
 				notation: "image.tag",
 			},
 			want:    "",
@@ -39,7 +39,7 @@ func TestReadCurrentVersion(t *testing.T) {
 		{
 			name: "simple yaml",
 			args: args{
-				f:        createSimpleYaml("v1.2.99"),
+				f:  createSimpleYaml("v1.2.99"),
 				notation: "image.tag",
 			},
 			want:    "v1.2.99",
@@ -48,15 +48,24 @@ func TestReadCurrentVersion(t *testing.T) {
 		{
 			name: "invalid notation to yaml",
 			args: args{
-				f:        createSimpleYaml("v1.2.99"),
+				f:  createSimpleYaml("v1.2.99"),
 				notation: "image.nope",
 			},
 			want:    "",
 			wantErr: true,
 		},
+		{
+			name: "array notation",
+			args: args{
+				f:  createSimpleArrayYaml("v1.9"),
+				notation: "images[3].tag",
+			},
+			want:    "v1.9",
+			wantErr: false,
+		},
 	}
 
-	fmt.Println(string(createSimpleYaml("v1.2.99")))
+	fmt.Println(string(createSimpleArrayYaml("v1.2.99")))
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -81,6 +90,23 @@ func createSimpleYaml(t string) []byte {
 		Image tag `yaml:"image"`
 	}{
 		Image: tag{Tag: t},
+	})
+	if err != nil {
+		return nil
+	}
+
+	return marshal
+}
+
+func createSimpleArrayYaml(t string) []byte {
+	type tag struct {
+		Tag string `yaml:"tag"`
+	}
+
+	marshal, err := yaml.Marshal(&struct {
+		Images []tag `yaml:"images"`
+	}{
+		Images: []tag{{Tag: "v1"},{Tag: "v2"},{Tag: "v3"},{Tag: t}},
 	})
 	if err != nil {
 		return nil
