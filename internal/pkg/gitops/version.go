@@ -15,7 +15,7 @@ func ReadCurrentVersion(f []byte, notation string) (string, error) {
 	data := make(map[string]interface{})
 	err := yaml.Unmarshal(f, &data)
 
-	if err != nil {
+	if err != nil || len(data) <= 0 {
 		return "", fmt.Errorf("unvalid valid: %w", err)
 	}
 

@@ -13,25 +13,25 @@ func Test_handleSlackCommand(t *testing.T) {
 		s := &server{}
 		r := &NamedRepositoryRegistry{}
 
-		tests := []struct{
-			name string
+		tests := []struct {
+			name    string
 			command string
-			expect string
+			expect  string
 		}{
 			{
-				name: "when using missing bits",
+				name:    "when using missing bits",
 				command: "totally wrong",
-				expect: "Incorrect usage, expected /gitops-commit [command] [name] [tag]",
+				expect:  "Incorrect usage, expected /gitops-commit [command] [name] [tag]",
 			},
 			{
-				name: "when using an invalid command",
+				name:    "when using an invalid command",
 				command: "wrong thing v1.2.3",
-				expect: "Unknown command 'wrong', expected /gitops-commit [command] [name] [tag]",
+				expect:  "Unknown command 'wrong', expected /gitops-commit [command] [name] [tag]",
 			},
 			{
-				name: "when using a valid command ",
+				name:    "when using a valid command ",
 				command: "deploy thing v1.2.3",
-				expect: "Unknown named repository, cannot handle \"thing\", availabe options ()",
+				expect:  "Unknown named repository, cannot handle \"thing\", availabe options ()",
 			},
 		}
 
