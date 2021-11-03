@@ -49,14 +49,14 @@ func unwrapYaml(yaml map[string]interface{}, notion string) (string, error) {
 		if r.MatchString(k) {
 			idx := r.FindString(k)[:1]
 
-			if len(idx) > 0 {
+			if len(idx) >= 0 {
 				i, err := strconv.ParseInt(idx, 10, 8)
 
 				if err != nil {
 					return "", err
 				}
 
-				k = k[:len(k)-int(i)]
+				k = k[:len(k)-len(fmt.Sprintf("[%d]", i))]
 
 				if a, ok := d[k].([]interface{}); ok {
 					if b, ok := a[i].(map[string]interface{}); ok {
