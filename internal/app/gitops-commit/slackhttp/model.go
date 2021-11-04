@@ -52,8 +52,8 @@ func (c *NamedRepositoryRegistry) getNamesFlattened() string {
 	var names string
 
 	for _, r := range *c.r {
-		names += r.Name + ","
+		names += r.Name + ", "
 	}
 
-	return names[:len(names)-1]
+	return names[:len(names)-2]
 }

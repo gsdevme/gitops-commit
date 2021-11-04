@@ -1,7 +1,6 @@
 package gitops
 
 import (
-	"fmt"
 	"gopkg.in/yaml.v3"
 	"testing"
 )
@@ -73,8 +72,6 @@ func TestReadCurrentVersion(t *testing.T) {
 			wantErr: false,
 		},
 	}
-
-	fmt.Println(string(createSimpleArrayYaml("v1.2.99")))
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
