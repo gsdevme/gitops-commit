@@ -38,7 +38,5 @@ func DeployVersionHandler(c DeployVersionCommand) error {
 		return fmt.Errorf("cannot write new version: %w", err)
 	}
 
-	PushVersion(r, &c.GitOptions, c.File, fmt.Sprintf("ci: update tag to %s", c.Version))
-
-	return nil
+	return PushVersion(r, &c.GitOptions, c.File, fmt.Sprintf("ci: update tag to %s", c.Version))
 }

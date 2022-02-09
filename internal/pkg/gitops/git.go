@@ -38,16 +38,16 @@ func NewGitOptions(keys *ssh.PublicKeys) (*GitOptions, func(), error) {
 		}, nil
 }
 
-func PushVersion(r *git.Repository, options *GitOptions, file string, message string) {
+func PushVersion(r *git.Repository, options *GitOptions, file string, message string) error {
 	tree, err := r.Worktree()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	_, err = tree.Add(file)
 
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("failed to stage file for comit:%w", err)
 	}
 
 	commit, err := tree.Commit(message, &git.CommitOptions{
@@ -59,13 +59,13 @@ func PushVersion(r *git.Repository, options *GitOptions, file string, message st
 	})
 
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("failed to commit: %w", err)
 	}
 
 	_, err = r.CommitObject(commit)
 
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("failed to commit: %w", err)
 	}
 
 	err = r.Push(&git.PushOptions{
@@ -73,8 +73,10 @@ func PushVersion(r *git.Repository, options *GitOptions, file string, message st
 	})
 
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("failed to push change to the repo: %w", err)
 	}
+
+	return nil
 }
 
 func GetPasswordlessKey(key string) (*ssh.PublicKeys, error) {

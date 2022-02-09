@@ -37,15 +37,13 @@ func newRunCommand() *cobra.Command {
 
 			defer c()
 
-			err = gitops.DeployVersionHandler(gitops.DeployVersionCommand{
+			return gitops.DeployVersionHandler(gitops.DeployVersionCommand{
 				GitOptions: *options,
 				Repository: repo,
 				Notation:   notation,
 				File:       file,
 				Version:    newVersion,
 			})
-
-			return err
 		},
 	}
 
