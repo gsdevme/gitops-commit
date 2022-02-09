@@ -6,5 +6,7 @@ ENV SSH_KNOWN_HOSTS="/etc/ssh/ssh_known_hosts"
 
 RUN apk add --no-cache openssh-client && ssh-keyscan -H github.com >> /etc/ssh/ssh_known_hosts
 
-ENTRYPOINT ["/gitops-commit"]
+COPY entrypoint.sh .
+
+ENTRYPOINT ["/entrypoint.sh"]
 COPY gitops-commit /
