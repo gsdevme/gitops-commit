@@ -12,6 +12,7 @@ func newRunCommand() *cobra.Command {
 	c := cobra.Command{
 		Use: "run",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			commitScope := cmd.Flag("commit-scope").Value.String()
 			key := cmd.Flag("key").Value.String()
 			email := cmd.Flag("email").Value.String()
 			newVersion := cmd.Flag("version").Value.String()
@@ -38,15 +39,17 @@ func newRunCommand() *cobra.Command {
 			defer c()
 
 			return gitops.DeployVersionHandler(gitops.DeployVersionCommand{
-				GitOptions: *options,
-				Repository: repo,
-				Notation:   notation,
-				File:       file,
-				Version:    newVersion,
+				GitOptions:  *options,
+				Repository:  repo,
+				Notation:    notation,
+				File:        file,
+				Version:     newVersion,
+				CommitScope: commitScope,
 			})
 		},
 	}
 
+	c.Flags().String("commit-scope", "", "If you want to add a commit scope inline with conventional commits")
 	c.Flags().String("notation", "", "The yaml path in dot notation i.e. image.tag")
 	c.Flags().String("email", "", "The email address of the commit")
 	c.Flags().String("version", "", "The semver version you want to deploy i.e. v1.1.2")
