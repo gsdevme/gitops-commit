@@ -2,7 +2,7 @@ package gitops
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 )
 
 type DeployVersionCommand struct {
@@ -23,7 +23,7 @@ func DeployVersionHandler(c DeployVersionCommand) error {
 
 	filename := fmt.Sprintf("%s/%s", c.GitOptions.WorkingDirectory, c.File)
 
-	f, err := ioutil.ReadFile(filename)
+	f, err := os.ReadFile(filename)
 
 	if err != nil {
 		return fmt.Errorf("cannot read file: %w", err)
