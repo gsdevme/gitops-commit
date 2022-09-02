@@ -6,11 +6,12 @@ import (
 )
 
 type DeployVersionCommand struct {
-	GitOptions GitOptions
-	Repository string
-	Notation   string
-	File       string
-	Version    string
+	GitOptions  GitOptions
+	Repository  string
+	Notation    string
+	File        string
+	Version     string
+	CommitScope string
 }
 
 func DeployVersionHandler(c DeployVersionCommand) error {
@@ -38,5 +39,11 @@ func DeployVersionHandler(c DeployVersionCommand) error {
 		return fmt.Errorf("cannot write new version: %w", err)
 	}
 
-	return PushVersion(r, &c.GitOptions, c.File, fmt.Sprintf("ci: update tag to %s", c.Version))
+	message := fmt.Sprintf("ci: update tag to %s", c.Version)
+
+	if len(c.CommitScope) > 0 {
+		message = fmt.Sprintf("ci(%s): update tag to %s", c.CommitScope, c.Version)
+	}
+
+	return PushVersion(r, &c.GitOptions, c.File, message)
 }
