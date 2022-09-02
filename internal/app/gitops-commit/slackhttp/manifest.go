@@ -3,7 +3,7 @@ package slackhttp
 import (
 	"fmt"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
+	"os"
 )
 
 type Manifest struct {
@@ -29,7 +29,7 @@ func LoadManifest(f string) (*Manifest, error) {
 		registry: NewNamedRepositoryRegistry(),
 	}
 
-	d, err := ioutil.ReadFile(f)
+	d, err := os.ReadFile(f)
 
 	if err != nil {
 		return nil, fmt.Errorf("cannot read yaml file: %w", err)

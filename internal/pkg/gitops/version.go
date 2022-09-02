@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -32,7 +32,7 @@ func ReadCurrentVersion(f []byte, notation string) (string, error) {
 
 func WriteVersion(f []byte, version string, newVersion string, filename string) error {
 	output := bytes.Replace(f, []byte(version), []byte(newVersion), -1)
-	err := ioutil.WriteFile(filename, output, 0666)
+	err := os.WriteFile(filename, output, 0666)
 
 	if err != nil {
 		return fmt.Errorf("cannot replace version: %w", err)

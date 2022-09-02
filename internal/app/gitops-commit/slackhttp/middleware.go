@@ -4,7 +4,6 @@ import (
 	"github.com/google/martian/log"
 	"github.com/slack-go/slack"
 	"io"
-	"io/ioutil"
 	"net/http"
 )
 
@@ -17,7 +16,7 @@ func (s *server) SlackCommandMiddleware(next func(w http.ResponseWriter, s slack
 			return
 		}
 
-		r.Body = ioutil.NopCloser(io.TeeReader(r.Body, &verifier))
+		r.Body = io.NopCloser(io.TeeReader(r.Body, &verifier))
 		s, err := slack.SlashCommandParse(r)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
