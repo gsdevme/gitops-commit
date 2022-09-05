@@ -18,6 +18,8 @@ dockers:
       - "gsdevme/gitops-commit:latest"
       - "gsdevme/gitops-commit:{{ .Tag }}"
       - "gsdevme/gitops-commit:v{{ .Major }}"
+    dockerfile: Dockerfile
+    use: buildx
 archives:
   - replacements:
       darwin: Darwin
